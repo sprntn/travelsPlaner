@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\shapira\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\shapira\\.nuget\\packages"
+    ]
+  }
+}
