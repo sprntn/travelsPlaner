@@ -91,6 +91,8 @@ namespace travels_server_side.Services
             return true;
         }
 
+        
+
         private List<SitesEO> getManagerSites(string email)
         {
             List<SitesEO> managerSites = _travelDbContext.sites.Where(s => s.managerEmailFK == email).ToList();

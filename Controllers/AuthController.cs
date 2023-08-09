@@ -33,6 +33,16 @@ namespace travels_server_side.Controllers
             return Ok(this._authService.demoToken(user.email));//return demo token string or error message
         }
 
+        [HttpPost("demoManagerLogin")]
+        public IActionResult demoManagerLogin([FromBody] ManagersDTO manager)
+        {
+            if (String.IsNullOrEmpty(manager.email))
+            {
+                return Unauthorized();
+            }
+            return Ok(this._authService.demoToken(manager.email));//return demo token string or error message
+        }
+
         //[AllowAnonymous]
         [HttpPost]
         [Route("userLogin")]
@@ -43,6 +53,21 @@ namespace travels_server_side.Controllers
             return Ok(new
             {
                 userEmail = user.email,
+                StatusCode = 200,
+                message = "logged in successfully",
+                jwtToken = token,
+            });
+        }
+
+        [HttpPost]
+        [Route("managerLogin")]
+        public IActionResult managerLogin([FromBody] ManagersDTO manager)
+        {
+            //validation here
+            string token = _authService.authenticate(manager.email);
+            return Ok(new
+            {
+                managerEmail = manager.email,
                 StatusCode = 200,
                 message = "logged in successfully",
                 jwtToken = token,

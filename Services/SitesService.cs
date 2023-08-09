@@ -61,8 +61,295 @@ namespace travels_server_side.Services
 
         public List<SitesDTO> getSites()
         {
-            List<SitesDTO> sites = _travelDbContext.sites.Select(site => _mapper.Map<SitesDTO>(site)).ToList();
-            return sites;
+            /*
+            List<SitesDTO> sites = new List<SitesDTO>();
+
+            var result = from site in _travelDbContext.sites
+                         join visit in _travelDbContext.visits
+                         on site.siteId equals visit.siteIdFK into siteVisits
+                         select new
+                         {
+                             siteId = site.siteId,
+                             imageSource = site.imageSource,
+                             Latitude = site.Latitude,
+                             Longtitude = site.Longtitude,
+                             mainCategoryFK = site.mainCategoryFK,
+                             managerEmail = site.managerEmailFK,
+                             siteDescription = site.siteDescription,
+                             siteName = site.siteName,
+                             webSite = site.webSite,
+                             siteAverageRating = siteVisits.Average(v => v.rating)
+                         };
+            foreach (var site in result)
+            {
+                SitesDTO siteDto = new SitesDTO()
+                {
+                    siteId = site.siteId,
+                    imageSource = site.imageSource,
+                    Latitude = site.Latitude,
+                    Longtitude = site.Longtitude,
+                    mainCategoryFK = site.mainCategoryFK,
+                    managerEmail = site.managerEmail,
+                    siteDescription = site.siteDescription,
+                    siteName = site.siteName,
+                    webSite = site.webSite,
+                    siteAverageRating = site.siteAverageRating
+                };
+                sites.Add(siteDto);
+            }
+            */
+                /*
+
+                var result = from site in _travelDbContext.sites
+                             join visit in _travelDbContext.visits
+                             on site.siteId equals visit.siteIdFK into siteVisits
+                             select new SitesDTO()
+                             {
+                                 siteId = site.siteId,
+                                 imageSource = site.imageSource,
+                                 Latitude = site.Latitude,
+                                 Longtitude = site.Longtitude,
+                                 mainCategoryFK = site.mainCategoryFK,
+                                 managerEmail = site.managerEmailFK,
+                                 siteDescription = site.siteDescription,
+                                 siteName = site.siteName,
+                                 webSite = site.webSite,
+                                 siteAverageRating = siteVisits.Average(v => v.rating)
+                             };
+                foreach(var site in result)
+                {
+                    sites.Add(site);
+                }
+                */
+                List<SitesDTO> sites = _travelDbContext.sites.Select(site => _mapper.Map<SitesDTO>(site)).ToList();
+                /*
+                List<SitesDTO> sites = _travelDbContext.sites.Select(site => new SitesDTO() 
+                { 
+                    siteId = site.siteId, 
+                    siteName = site.siteName,
+                    imageSource = site.imageSource,
+                    mainCategoryFK = site.mainCategoryFK,
+                    managerEmail = site.managerEmailFK,
+                    webSite = site.webSite,
+                    siteAverageRating = site.
+                }).ToList();
+                */
+                return sites;
+        }
+
+        public List<SitesDTO> getManagerSites(string managerEmail)
+        {
+            /*
+            List<SitesDTO> managerSites = _travelDbContext.sites.Where(s => s.managerEmailFK == managerEmail)
+                .GroupJoin(_travelDbContext.visits, s => s.siteId, v => v.siteIdFK, (site, visits) => new
+                {
+                    Site = site,
+                    siteVisits = visits,
+                    //rating = visits.Average(v => v.rating)
+                }
+                ).Select(s => new SitesDTO()
+                {
+                    imageSource = s.Site.imageSource,
+                    mainCategoryFK = s.Site.mainCategoryFK,
+                    managerEmail = managerEmail,
+                    siteDescription = s.Site.siteDescription,
+                    siteId = s.Site.siteId,
+                    siteName = s.Site.siteName,
+                    webSite = s.Site.webSite,
+                    
+                    //siteAverageRating = s.rating
+                    
+                    siteAverageRating = s.siteVisits.Average(v => v.rating)
+
+                    //siteAverageRating = s.siteVisits.Average(v => v.rating)
+                    //site = s.newSite,
+                    //rating = s.siteVisits.Average(v => v.rating)
+                    //rating = s.rating
+                }).ToList();
+            */
+
+            /*
+            List<SitesDTO> managerSites = new List<SitesDTO>();
+
+            var result = _travelDbContext.sites   
+                .Where(s => s.managerEmailFK == managerEmail)
+                .GroupJoin(
+                    inner: _travelDbContext.visits,
+                    outerKeySelector: s => s.siteId,
+                    innerKeySelector: v => v.siteIdFK,
+                    resultSelector: (site, visits) => new {
+                        Site = site,
+                        rating = visits.Average(v => v.rating)
+                    })
+                .ToList();
+
+            foreach(var item in result)
+            {
+                SitesDTO site = new SitesDTO()
+                {
+                    imageSource = item.Site.imageSource,
+                    Latitude = item.Site.Latitude,
+                    Longtitude = item.Site.Longtitude,
+                    mainCategoryFK = item.Site.mainCategoryFK,
+                    managerEmail = managerEmail,
+                    siteDescription = item.Site.siteDescription,
+                    siteId = item.Site.siteId,
+                    siteName = item.Site.siteName,
+                    webSite = item.Site.webSite,
+
+                    siteAverageRating = item.rating
+                };
+                managerSites.Add(site);
+            }
+            */
+            /*
+            List<SitesDTO> managerSites = new List<SitesDTO>();
+            var aggregatedRatings = _travelDbContext.visits
+                .GroupBy(v => v.siteIdFK)
+                .Select(g => new { SiteId = g.Key, AverageRating = g.Average(v => v.rating) })
+                .ToList();
+
+            var result = _travelDbContext.sites
+                .Where(s => s.managerEmailFK == managerEmail)
+                .Join(
+                    inner: aggregatedRatings,
+                    outerKeySelector: s => s.siteId,
+                    innerKeySelector: ar => ar.SiteId,
+                    resultSelector: (site, avgRating) => new { Site = site, rating = avgRating.AverageRating })
+                .ToList();
+
+            foreach (var item in result)
+            {
+                SitesDTO site = new SitesDTO()
+                {
+                    imageSource = item.Site.imageSource,
+                    Latitude = item.Site.Latitude,
+                    Longtitude = item.Site.Longtitude,
+                    mainCategoryFK = item.Site.mainCategoryFK,
+                    managerEmail = managerEmail,
+                    siteDescription = item.Site.siteDescription,
+                    siteId = item.Site.siteId,
+                    siteName = item.Site.siteName,
+                    webSite = item.Site.webSite,
+
+                    siteAverageRating = item.rating
+                };
+                managerSites.Add(site);
+            }
+            */
+
+            //var result = _travelDbContext.sites
+            //    .Where(s => s.managerEmailFK == managerEmail)
+            //    .Join(
+            //        inner: aggregatedRatings,
+            //        outerKeySelector: s => s.siteId,
+            //        innerKeySelector: ar => ar.SiteId,
+            //        resultSelector: (site, avgRating) => new { Site = site, rating = avgRating.AverageRating })
+            //    .ToList();
+            /*
+            var result = from site in _travelDbContext.sites
+                         join visit in _travelDbContext.visits
+                         on site.siteId equals visit.siteIdFK
+                         into siteVisits
+                         select new
+                         {
+                             Site = site,
+                             AverageRating = siteVisits.Average(v => v.rating)
+                         };
+
+            foreach (var item in result)
+            {
+                SitesDTO site = new SitesDTO()
+                {
+                    imageSource = item.Site.imageSource,
+                    Latitude = item.Site.Latitude,
+                    Longtitude = item.Site.Longtitude,
+                    mainCategoryFK = item.Site.mainCategoryFK,
+                    managerEmail = item.Site.managerEmailFK,
+                    siteDescription = item.Site.siteDescription,
+                    siteId = item.Site.siteId,
+                    siteName = item.Site.siteName,
+                    webSite = item.Site.webSite,
+                    siteAverageRating = item.AverageRating
+                };
+                managerSites.Add(site);
+            }
+
+            //var result = from site in _travelDbContext.sites
+            //             join visit in _travelDbContext.visits
+            //             on site.siteId equals visit.siteIdFK
+            //             group visit by visit.siteIdFK into siteGroup
+            //             select new
+            */
+            //working too
+            /*
+            var result = from site in _travelDbContext.sites
+                        where site.managerEmailFK == managerEmail
+                        join visit in _travelDbContext.visits on site.siteId equals visit.siteIdFK //into siteVisits
+                        group visit by new { site.siteId, site.siteName } into grouped
+                        select new
+                        {
+                            siteId = grouped.Key.siteId,
+                            siteName = grouped.Key.siteName,
+                            rating = grouped.Average(v => v.rating)
+                            //SiteId = site.SiteId,
+                            //SiteName = site.SiteName,
+                            //Site = site,
+                            //AverageRating = siteVisits.Average(v => v.rating)
+                            //visits = siteVisits
+                        };
+            */
+            List<SitesDTO> managerSites = new List<SitesDTO>();
+            //working
+            
+            var ratings = from visit in _travelDbContext.visits
+                          group visit by visit.siteIdFK into siteGroup
+                          select new
+                          {
+                              SiteId = siteGroup.Key,
+                              AverageRating = siteGroup.Average(v => v.rating)
+                          };
+            var result = from site in _travelDbContext.sites
+                         where site.managerEmailFK == managerEmail
+                         join rating in ratings on site.siteId equals rating.SiteId
+                         select new
+                         {
+                             Site = site,
+                             rating = rating.AverageRating
+                         };
+            
+            foreach (var item in result)
+            {
+                SitesDTO site = new SitesDTO()
+                {
+                    /*
+                    imageSource="",
+                    siteId = item.siteId,
+                    siteName = item.siteName,
+                    siteAverageRating = item.rating,
+                    Latitude = 0,
+                    Longtitude = 0,
+                    mainCategoryFK = 1,
+                    managerEmail = managerEmail,
+                    siteDescription = "",
+                    webSite = ""
+                    */
+                    
+                    imageSource = item.Site.imageSource,
+                    Latitude = item.Site.Latitude,
+                    Longtitude = item.Site.Longtitude,
+                    mainCategoryFK = item.Site.mainCategoryFK,
+                    managerEmail = item.Site.managerEmailFK,
+                    siteDescription = item.Site.siteDescription,
+                    siteId = item.Site.siteId,
+                    siteName = item.Site.siteName,
+                    webSite = item.Site.webSite,
+                    siteAverageRating = item.rating
+                };
+                managerSites.Add(site);
+            }
+
+            return managerSites;
         }
 
         private Dictionary<int, int> setCategoriesRating(string userEmail)
@@ -754,22 +1041,22 @@ namespace travels_server_side.Services
             return sites;
         }
 
-        public List<SitesDTO> getManagerSites(string email)
-        {
-            List<SitesDTO> managerSites = _travelDbContext.sites.
-                Where(s => s.managerEmailFK == email).Select(s => new SitesDTO() {
-                    siteId = s.siteId,
-                    imageSource = s.imageSource,
-                    managerEmail = s.managerEmailFK,
-                    siteName = s.siteName,
-                    webSite = s.webSite,
-                    //visitsNum = s.visitsNum,
-                    siteDescription = s.siteDescription,
-                    //siteAverageRating = s.averageRating,
-                    mainCategoryFK = s.mainCategoryFK
-                }).ToList();
-            return managerSites;
-        }
+        //public List<SitesDTO> getManagerSites(string email)
+        //{
+        //    List<SitesDTO> managerSites = _travelDbContext.sites.
+        //        Where(s => s.managerEmailFK == email).Select(s => new SitesDTO() {
+        //            siteId = s.siteId,
+        //            imageSource = s.imageSource,
+        //            managerEmail = s.managerEmailFK,
+        //            siteName = s.siteName,
+        //            webSite = s.webSite,
+        //            //visitsNum = s.visitsNum,
+        //            siteDescription = s.siteDescription,
+        //            //siteAverageRating = s.averageRating,
+        //            mainCategoryFK = s.mainCategoryFK
+        //        }).ToList();
+        //    return managerSites;
+        //}
 
         public int updateSite_v1(SitesDTO upSite)
         {

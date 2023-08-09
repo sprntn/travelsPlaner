@@ -19,5 +19,7 @@ namespace travels_server_side.Entities
         //public int visitsNum { get; set; }//deleted
         //[ForeignKey("")]//להשלים
         public string managerEmailFK { get; set; }
+        public int Latitude { get; set; }
+        public int Longtitude { get; set; }
     }
 }

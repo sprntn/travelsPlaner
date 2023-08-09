@@ -13,5 +13,7 @@ namespace travels_server_side.Models
         //public int visitsNum { get; set; }//deleted
         public string managerEmail { get; set; }
         public int mainCategoryFK { get; set; }
+        public int Latitude { get; set; }
+        public int Longtitude { get; set; }
     }
 }
